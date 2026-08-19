@@ -1,0 +1,634 @@
+.app {
+  min-height: 100vh;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 65% 40%,
+      rgba(41, 148, 82, 0.18),
+      transparent 30%
+    ),
+    linear-gradient(
+      145deg,
+      #0b1810 0%,
+      #07100b 60%,
+      #09150e 100%
+    );
+}
+
+.header {
+  height: 84px;
+  padding: 0 6%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid
+    rgba(151, 196, 168, 0.13);
+}
+
+.header > p {
+  color: #718b7c;
+
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: white;
+  font-weight: bold;
+}
+
+.logoMark {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid #4ee58b;
+  color: #4ee58b;
+
+  font-size: 13px;
+
+  transform: rotate(-5deg);
+}
+
+.hero {
+  width: min(1450px, 94%);
+  min-height: calc(100vh - 84px);
+  margin: auto;
+
+  display: grid;
+  grid-template-columns:
+    minmax(310px, 0.65fr)
+    minmax(700px, 1.35fr);
+
+  align-items: center;
+  gap: 45px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #83ac93;
+
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.eyebrow span {
+  width: 24px;
+  height: 1px;
+
+  background-color: #4ee58b;
+}
+
+.introduction h1 {
+  max-width: 500px;
+  margin: 24px 0;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: clamp(65px, 8vw, 110px);
+  font-weight: normal;
+  line-height: 0.85;
+  letter-spacing: -0.07em;
+}
+
+.introduction h1 strong {
+  display: block;
+
+  color: #4ee58b;
+
+  font-weight: normal;
+  font-style: italic;
+}
+
+.description {
+  max-width: 360px;
+
+  color: #8ca99a;
+
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.cubeContainer {
+  position: relative;
+  height: 600px;
+}
+
+.cubeContainer canvas {
+  cursor: grab;
+}
+
+.cubeContainer canvas:active {
+  cursor: grabbing;
+}
+
+.hint {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  color: #718b7c;
+
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.movePanel {
+  position: static;
+  z-index: 5;
+
+  width: 100%;
+  padding: 15px;
+
+  border: 1px solid
+    rgba(78, 229, 139, 0.2);
+
+  border-radius: 4px;
+
+  background-color:
+    rgba(7, 16, 11, 0.88);
+
+  backdrop-filter: blur(12px);
+}
+.moveInformation {
+  margin-bottom: 12px;
+
+  display: grid;
+  grid-template-columns: 75px 85px 1fr;
+
+  gap: 12px;
+}
+
+.moveInformation > div {
+  min-width: 0;
+}
+
+.moveInformation span {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #718b7c;
+
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.moveInformation strong {
+  color: #ecf7f0;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 24px;
+  font-weight: normal;
+}
+
+.moveInformation p {
+  min-height: 24px;
+  margin: 0;
+
+  overflow: hidden;
+
+  color: #4ee58b;
+
+  font-size: 11px;
+  line-height: 1.6;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.turnControls {
+  display: grid;
+  grid-template-columns:
+    repeat(6, 1fr);
+
+  gap: 6px;
+}
+
+.turnButton {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid
+    rgba(78, 229, 139, 0.35);
+
+  border-radius: 3px;
+
+  background-color:
+    rgba(10, 27, 17, 0.9);
+
+  color: #4ee58b;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    transform 0.2s,
+    opacity 0.2s;
+}
+
+.undoButton{
+    width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid
+    rgba(78, 229, 139, 0.35);
+
+  border-radius: 3px;
+
+  background-color:
+    rgba(10, 27, 17, 0.9);
+
+  color: #4ee58b;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    transform 0.5s ease-in-out,
+    opacity 0.2s;
+
+     font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+}
+
+.undoButton:hover{
+
+  color:#ad0c06;
+
+  transition:     background-color 0.4s,
+    border-color 0.1s,
+    transform 0.5s,
+    opacity 0.5s;;
+}
+
+.turnButton span {
+  display: grid;
+  place-items: center;
+
+  color: #4ee58b;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 17px;
+}
+
+.turnButton:hover:not(:disabled) {
+  background-color:
+    rgba(78, 229, 139, 0.12);
+
+  border-color: #4ee58b;
+
+  transform: translateY(-2px);
+}
+
+.turnButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.gameActions{
+  margin-top: 10px;
+
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+
+  gap: 7px;
+}
+
+.scrambleButton,
+.underButton,
+.resetButton {
+  height: 42px;
+
+  border-radius: 3px;
+
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    opacity 0.2s;
+}
+
+.underButton {
+  border: 1px solid 
+     rgba(78, 229, 139, 0.3);
+
+  background-color:
+    rgba(78, 229, 139, 0.07);
+
+  color: #a8d9b9;
+}
+
+.underButton:hover:not(:disabled){
+  border-color: #4ee58b;
+  color: #ecf7f0;
+}
+
+.underButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.scrambleButton {
+  border: 1px solid #4ee58b;
+
+  background-color: #4ee58b;
+  color: #07100b;
+}
+
+.scrambleButton:hover:not(:disabled) {
+  background-color: #6df0a4;
+}
+
+.scrambleButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.resetButton {
+  border: 1px solid 
+  rgba(255, 255, 255, 0.14);
+
+  background-color:
+    rgba(255, 255, 255, 0.03);
+
+  color: #a8bcae;
+}
+
+.resetButton:hover {
+  border-color:
+    rgba(78, 229, 139, 0.5);
+
+  color: #ecf7f0;
+}
+
+.cubeExperience {
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  grid-template-columns:
+    minmax(320px, 1fr) 410px;
+
+  align-items: center;
+  gap: 25px;
+}
+
+.canvasArea {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+
+.victoryMessage {
+  margin-bottom: 12px;
+  padding: 14px;
+
+  border: 1px solid
+    rgba(78, 229, 139, 0.45);
+
+  border-radius: 3px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(78, 229, 139, 0.16),
+      rgba(78, 229, 139, 0.04)
+    );
+}
+
+.victoryMessage span {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #4ee58b;
+
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.victoryMessage strong {
+  display: block;
+
+  color: #ecf7f0;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 18px;
+  font-weight: normal;
+}
+
+.victoryMessage p {
+  margin: 5px 0 0;
+
+  color: #8ca99a;
+  font-size: 10px;
+}
+
+.canvasArea {
+  position: relative;
+  touch-action: none;
+}
+
+.canvasArea canvas {
+  cursor: grab;
+}
+
+.canvasArea.draggingPiece canvas {
+  cursor: grabbing;
+}
+
+.gestureHint {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+
+  margin: 0;
+
+  transform: translateX(-50%);
+
+  color: #718b7c;
+
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 0.13em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  pointer-events: none;
+}
+
+.controlTitle {
+  margin: 4px 0 9px;
+
+  color: #718b7c;
+
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.canvasArea {
+  position: relative;
+  touch-action: none;
+}
+
+.canvasArea canvas {
+  cursor: grab;
+}
+
+.canvasArea.draggingPiece canvas {
+  cursor: grabbing;
+}
+
+.gestureHint {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+
+  margin: 0;
+
+  transform: translateX(-50%);
+
+  color: #718b7c;
+
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 0.13em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  pointer-events: none;
+}
+
+.controlTitle {
+  margin: 4px 0 9px;
+
+  color: #718b7c;
+
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1150px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 60px 0;
+  }
+
+  .introduction {
+    max-width: 600px;
+  }
+
+  .cubeContainer {
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 750px) {
+  .header > p {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 50px;
+  }
+
+  .introduction h1 {
+    font-size: 68px;
+  }
+
+.cubeContainer {
+  height: auto;
+}
+
+.cubeExperience {
+  grid-template-columns: 1fr;
+  grid-template-rows:
+    430px auto;
+
+  gap: 15px;
+}
+
+.canvasArea {
+  height: 430px;
+}
+
+.movePanel {
+  position: static;
+  width: 100%;
+  transform: none;
+}
+
+.turnControls {
+  grid-template-columns:
+    repeat(6, 1fr);
+}
+
+.hint {
+  display: none;
+}
+}
