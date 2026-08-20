@@ -178,7 +178,6 @@ function App() {
           <section className="startScreen">
             <div className="startIntroduction">
               <p className="eyebrow">
-                <span />
                 Experiência interativa 3D
               </p>
 
