@@ -19,6 +19,11 @@ import {
 } from "@react-three/drei";
 
 import * as THREE from "three";
+import confetti from "canvas-confetti";
+
+import type { GameMode } from "../types/game";
+import { MoveHistory } from "./MoveHistory";
+
 
 type Position = [
   number,
@@ -60,6 +65,12 @@ interface ActiveMove {
   selectedPieces: THREE.Group[];
 }
 
+interface GameRecords {
+  bestTime: number | null;
+  bestMoves: number | null;
+  solvedCubes: number;
+}
+
 interface DragInformation {
   startX: number;
   startY: number;
@@ -97,6 +108,11 @@ interface RubiksCubeProps {
   onMoveFinished: (
     cubeIsSolved: boolean,
   ) => void;
+}
+
+interface CubeSceneProps {
+  mode: GameMode;
+  onBack: () => void;
 }
 
 const COLORS = {
@@ -982,7 +998,79 @@ function RubiksCube({
   );
 }
 
-export function CubeScene() {
+function launchVictoryConfetti() {
+  const isMobile =
+    window.matchMedia(
+      "(max-width: 680px)",
+    ).matches;
+
+  const particleCount =
+    isMobile ? 45 : 80;
+
+  const colors = [
+    "#4ee58b",
+    "#ecf7f0",
+    "#f4d447",
+    "#2dbd72",
+    "#2879df",
+  ];
+
+  confetti({
+    particleCount,
+    angle: 60,
+    spread: 75,
+    startVelocity: 42,
+    gravity: 0.9,
+    ticks: 220,
+    origin: {
+      x: 0,
+      y: 0.72,
+    },
+    colors,
+    disableForReducedMotion: true,
+    zIndex: 9998,
+  });
+
+  confetti({
+    particleCount,
+    angle: 120,
+    spread: 75,
+    startVelocity: 42,
+    gravity: 0.9,
+    ticks: 220,
+    origin: {
+      x: 1,
+      y: 0.72,
+    },
+    colors,
+    disableForReducedMotion: true,
+    zIndex: 9998,
+  });
+
+  window.setTimeout(() => {
+    confetti({
+      particleCount:
+        isMobile ? 35 : 60,
+
+      spread: 110,
+      startVelocity: 32,
+
+      origin: {
+        x: 0.5,
+        y: 0.35,
+      },
+
+      colors,
+      disableForReducedMotion: true,
+      zIndex: 9998,
+    });
+  }, 180);
+}
+
+export function CubeScene({
+  mode,
+  onBack,
+}: CubeSceneProps) {
   const [command, setCommand] =
     useState<MoveCommand | null>(
       null,
@@ -1022,12 +1110,59 @@ export function CubeScene() {
   const [hasWon, setHasWon] =
     useState(false);
 
+  const [isOfficialRun, setIsOfficialRun] =
+    useState(false);
+
+  const [challengeReady, setChallengeReady] =
+    useState(false);
+
+  const [records, setRecords] = 
+  useState<GameRecords>({
+    bestTime: null,
+    bestMoves: null,
+    solvedCubes: 0,
+  });
+
   const commandIdRef =
     useRef(0);
 
   const moveQueueRef =
     useRef<QueuedMove[]>([]);
 
+  const officialRunRef = useRef(false);
+  const pendingChallengeRef = useRef(false);
+  const autoStartRef = useRef(false);
+  const scrambleRef = useRef<() => void>(() => {});
+
+  // Carrega os recordes uma única vez,
+  // quando o componente é iniciado.
+  useEffect(() => {
+    const savedRecords =
+      localStorage.getItem(
+        "wd-cube-records",
+      );
+
+    if (!savedRecords) {
+      return;
+    }
+
+    try {
+      const parsedRecords =
+        JSON.parse(
+          savedRecords,
+        ) as GameRecords;
+
+      setRecords(parsedRecords);
+    } catch {
+      localStorage.removeItem(
+        "wd-cube-records",
+      );
+    }
+  }, []);
+
+  // Controla o cronômetro separadamente.
+  // Hooks nunca podem ficar dentro
+  // de outros Hooks.
   useEffect(() => {
     if (!timerRunning) {
       return;
@@ -1080,6 +1215,13 @@ export function CubeScene() {
     }
   }
 
+  function updateOfficialRun(
+    value: boolean,
+  ) {
+    officialRunRef.current = value;
+    setIsOfficialRun(value);
+  }
+
   function executeManualMove(
     move: MoveConfiguration,
   ) {
@@ -1092,40 +1234,99 @@ export function CubeScene() {
 
     setHasWon(false);
 
+    if (
+      mode === "timed" &&
+      !officialRunRef.current
+    ) {
+      return;
+    }
+
+    setChallengeReady(false);
+
     startMove({
       ...move,
       record: true,
     });
   }
 
-  function finishMove(
-    cubeIsSolved: boolean,
-  ) {
-    const nextMove =
-      moveQueueRef.current.shift();
+  function saveVictoryRecords(){
+    setRecords((currentRecords) => {
+      const currentMoves = moveHistory.length;
 
-    if (nextMove) {
-      window.setTimeout(() => {
-        startMove(nextMove);
-      }, 60);
+      const newBestTime = currentRecords.bestTime === null || seconds < currentRecords.bestTime ? seconds : currentRecords.bestTime;
 
-      return;
-    }
+      const newBestMoves = currentRecords.bestMoves === null || currentMoves < currentRecords.bestMoves ? currentMoves : currentRecords.bestMoves;
 
-    setIsAnimating(false);
-    setIsScrambling(false);
+      const newRecords: GameRecords = {
+        bestTime: newBestTime,
+        bestMoves: newBestMoves,
+        solvedCubes: currentRecords.solvedCubes + 1,
+      };
 
-    if (
-      cubeIsSolved &&
-      !isScrambling &&
-      moveHistory.length > 0
-    ) {
-      setHasWon(true);
-      setTimerRunning(false);
-    }
+      localStorage.setItem(
+        "wd-cube-records",
+        JSON.stringify(newRecords),
+      );
+      return newRecords;
+    });
   }
 
-  function scrambleCube() {
+function finishMove(
+  cubeIsSolved: boolean,
+) {
+  const nextMove =
+    moveQueueRef.current.shift();
+
+  if (nextMove) {
+    window.setTimeout(() => {
+      startMove(nextMove);
+    }, 60);
+
+    return;
+  }
+
+  setIsAnimating(false);
+  setIsScrambling(false);
+
+  if (
+    pendingChallengeRef.current
+  ) {
+    pendingChallengeRef.current =
+      false;
+
+    updateOfficialRun(true);
+
+    setChallengeReady(true);
+    setMoveHistory([]);
+    setSeconds(0);
+    setTimerRunning(false);
+
+    return;
+  }
+
+  if (
+    cubeIsSolved &&
+    moveHistory.length > 0
+  ) {
+    launchVictoryConfetti();
+
+    setHasWon(true);
+    setTimerRunning(false);
+
+    if (
+      mode === "timed" &&
+      officialRunRef.current
+    ) {
+      updateOfficialRun(false);
+      setChallengeReady(false);
+      saveVictoryRecords();
+    }
+  }
+}
+
+  function scrambleCube(
+    official = mode === "timed",
+  ) {
     if (
       isAnimating ||
       isScrambling
@@ -1179,6 +1380,9 @@ export function CubeScene() {
       return;
     }
 
+    updateOfficialRun(false);
+    pendingChallengeRef.current = official;
+    setChallengeReady(false);
     setHasWon(false);
     setMoveHistory([]);
     setSeconds(0);
@@ -1196,6 +1400,13 @@ export function CubeScene() {
       isAnimating ||
       isScrambling ||
       moveHistory.length === 0
+    ) {
+      return;
+    }
+
+    if (
+      mode === "timed" &&
+      !officialRunRef.current
     ) {
       return;
     }
@@ -1232,6 +1443,7 @@ export function CubeScene() {
 
   function resetCube() {
     moveQueueRef.current = [];
+    pendingChallengeRef.current = false;
 
     commandIdRef.current += 1;
 
@@ -1242,13 +1454,40 @@ export function CubeScene() {
     setIsAnimating(false);
     setIsScrambling(false);
     setIsDraggingPiece(false);
+    setChallengeReady(false);
     setHasWon(false);
+    updateOfficialRun(false);
 
     setCubeKey(
       (currentKey) =>
         currentKey + 1,
     );
   }
+
+  useEffect(() => {
+    scrambleRef.current = () => {
+      scrambleCube(true);
+    };
+  });
+
+  useEffect(() => {
+    if (
+      mode !== "timed" ||
+      autoStartRef.current
+    ) {
+      return;
+    }
+
+    autoStartRef.current = true;
+
+    const timeoutId = window.setTimeout(() => {
+      scrambleRef.current();
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [mode]);
 
   return (
     <div className="cubeExperience">
@@ -1290,7 +1529,11 @@ export function CubeScene() {
             command={command}
             dragEnabled={
               !isAnimating &&
-              !isScrambling
+              !isScrambling &&
+              (
+                mode === "free" ||
+                isOfficialRun
+              )
             }
             onGestureMove={
               executeManualMove
@@ -1331,6 +1574,54 @@ export function CubeScene() {
       </div>
 
       <div className="movePanel">
+        <div className="currentMode">
+          <div>
+            <span>Modo atual</span>
+            <strong>
+              {mode === "free"
+                ? "Livre"
+                : "Contra o tempo"}
+            </strong>
+          </div>
+
+          <button
+            type="button"
+            disabled={
+              isAnimating ||
+              isScrambling
+            }
+            onClick={onBack}
+          >
+            Voltar ao menu
+          </button>
+        </div>
+
+        {mode === "timed" && (
+          <div className="recordsPanel">
+            <div>
+              <span>Melhor tempo</span>
+              <strong>
+                {records.bestTime === null
+                  ? "--:--"
+                  : formatTime(records.bestTime)}
+              </strong>
+            </div>
+
+            <div>
+              <span>Menos movimentos</span>
+              <strong>
+                {records.bestMoves ?? "--"}
+              </strong>
+            </div>
+
+            <div>
+              <span>Resolvidos</span>
+              <strong>
+                {records.solvedCubes}
+              </strong>
+            </div>
+          </div>
+        )}
         <div className="moveInformation">
           <div>
             <span>Movimentos</span>
@@ -1353,23 +1644,30 @@ export function CubeScene() {
 
             <p>
               {hasWon
-                ? "Cubo resolvido!"
+                ? mode === "timed"
+                  ? "Desafio concluído!"
+                  : "Cubo resolvido!"
                 : isScrambling
-                  ? "Embaralhando..."
-                  : isAnimating
-                    ? "Movimentando..."
-                    : isDraggingPiece
-                      ? "Arraste a peça..."
-                      : moveHistory.length >
-                          0
-                        ? moveHistory
-                            .slice(-6)
-                            .map(
-                              (move) =>
-                                move.label,
-                            )
-                            .join("  ")
-                        : "Pronto para jogar"}
+                  ? mode === "timed"
+                    ? "Preparando desafio..."
+                    : "Embaralhando..."
+                  : challengeReady
+                    ? "Comece quando estiver pronto!"
+                    : isAnimating
+                      ? "Movimentando..."
+                      : isDraggingPiece
+                        ? "Arraste a peça..."
+                        : mode === "timed" &&
+                            !isOfficialRun
+                          ? "Aguardando nova partida"
+                          : moveHistory.length > 0
+                            ? moveHistory
+                                .slice(-6)
+                                .map(
+                                  (move) => move.label,
+                                )
+                                .join("  ")
+                            : "Pronto para jogar"}
             </p>
           </div>
         </div>
@@ -1406,7 +1704,11 @@ export function CubeScene() {
                 type="button"
                 disabled={
                   isAnimating ||
-                  isScrambling
+                  isScrambling ||
+                  (
+                    mode === "timed" &&
+                    !isOfficialRun
+                  )
                 }
                 onClick={() =>
                   executeManualMove(
@@ -1422,6 +1724,12 @@ export function CubeScene() {
           )}
         </div>
 
+        <MoveHistory
+  moves={moveHistory.map(
+    (move) => move.label,
+  )}
+/>
+
         <div className="gameActions">
           <button
             className="scrambleButton"
@@ -1430,11 +1738,17 @@ export function CubeScene() {
               isAnimating ||
               isScrambling
             }
-            onClick={scrambleCube}
+            onClick={() => {
+              scrambleCube(
+                mode === "timed",
+              );
+            }}
           >
             {isScrambling
               ? "Embaralhando..."
-              : "Embaralhar"}
+              : mode === "timed"
+                ? "Nova partida"
+                : "Embaralhar"}
           </button>
 
           <button
@@ -1443,7 +1757,11 @@ export function CubeScene() {
             disabled={
               isAnimating ||
               isScrambling ||
-              moveHistory.length === 0
+              moveHistory.length === 0 ||
+              (
+                mode === "timed" &&
+                !isOfficialRun
+              )
             }
             onClick={
               undoLastMove

@@ -1,29 +1,38 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Poppins:ital,wght@0,400;0,500;0,600;1,500&display=swap");
+
 * {
   box-sizing: border-box;
 }
 
-html{
+html {
   scroll-behavior: smooth;
 }
 
-body{
+body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
   background-color: #07100b;
   color: #ecf7f0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Poppins", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-button, 
-a{
+button,
+a {
   font: inherit;
 }
 
-button{
+button {
   color: inherit;
 }
 
-#root{
+#root {
   min-height: 100vh;
+}
+
+::selection {
+  background-color: #4ee58b;
+  color: #07100b;
 }
