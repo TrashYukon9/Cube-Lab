@@ -2144,4 +2144,11 @@
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .mode-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
+}
 }

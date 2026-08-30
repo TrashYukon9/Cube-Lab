@@ -93,6 +93,10 @@ function App() {
       }, TRANSITION_DURATION);
   }
 
+  <main className="mode-container">
+  {/* conteúdo do modo atual */}
+</main>
+
   function selectMode(
     mode: GameMode,
   ) {

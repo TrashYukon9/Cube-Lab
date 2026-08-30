@@ -2,21 +2,37 @@
 
 * {
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
   background-color: #07100b;
   color: #ecf7f0;
   font-family: "Poppins", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
 }
 
 button,
@@ -26,10 +42,6 @@ a {
 
 button {
   color: inherit;
-}
-
-#root {
-  min-height: 100vh;
 }
 
 ::selection {
