@@ -153,7 +153,7 @@ ${message}
         <div className="contact-socials">
 
             <a
-         href="https://trashyukon9.github.io/DanielWn.site/"
+         href="https://danielwnsite.vercel.app/"
          target="_blank"
          rel="noopener noreferrer"
          className="contact-social-link"
